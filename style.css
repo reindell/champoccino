@@ -208,7 +208,35 @@ html:has(body.has-order) { scroll-padding-bottom: 140px; }
 .order-remove:hover { background: var(--cream); border-radius: 5px; }
 .order-total-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; border-top: 2px solid var(--coffee); font-size: 12px; }
 .order-total-row strong { flex-shrink: 0; font-size: 24px; font-variant-numeric: tabular-nums; }
-.order-dialog-footer { display: flex; justify-content: flex-end; margin-top: 4px; }
+.order-dialog-footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.staff-payment { padding: 18px 0; border-top: 1px solid var(--line); }
+.staff-payment > p, .order-storage-note { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.staff-payment > .button { width: 100%; }
+.order-confirmation { margin-top: 14px; padding: 16px; background: var(--white); border: 1px solid var(--coffee); border-radius: 8px; text-align: left; }
+.order-confirmation h3, .order-confirmation h4 { font: 600 14px/1.6 var(--body); }
+.order-confirmation p { margin-top: 8px; font-size: 12px; }
+.confirmation-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.confirmation-actions .button { flex: 1 1 150px; }
+.order-progress { margin-top: 20px; padding: 24px 16px; background: var(--cream); border: 1px solid var(--line); border-radius: 8px; text-align: center; }
+.order-progress > .eyebrow { font-size: 9px; letter-spacing: 1.4px; }
+#order-stage-title { margin-top: 8px; font: 400 28px/1.3 var(--display); }
+#order-stage-title:focus { outline: none; }
+#order-stage-message { margin: 10px auto 0; max-width: 34ch; font-size: 12px; }
+.waiting-visual { position: relative; width: 140px; height: 176px; margin: 0 auto 16px; }
+.waiting-visual img { position: absolute; bottom: 0; width: 140px; height: 150px; animation: waiting-cup 2.4s ease-in-out infinite; }
+.waiting-steam { position: absolute; top: 8px; left: 46px; display: flex; gap: 12px; }
+.waiting-steam span { width: 5px; height: 25px; border-radius: 50%; background: var(--coffee); opacity: .35; animation: waiting-steam 2.4s ease-in-out infinite; }
+.waiting-steam span:nth-child(2) { animation-delay: -.8s; }
+.waiting-steam span:nth-child(3) { animation-delay: -1.6s; }
+.order-progress.animation-paused .waiting-visual * { animation-play-state: paused; }
+.motion-control { display: block; min-height: 44px; margin: 10px auto 0; padding: 8px 12px; border: 0; border-radius: 5px; background: transparent; font-size: 11px; text-decoration: underline; text-underline-offset: 4px; }
+.motion-control:hover { background: var(--white); }
+.order-progress > .button { width: 100%; margin-top: 16px; }
+.received-visual { display: block; width: 64px; height: 64px; margin: 0 auto 18px; color: var(--coffee); background: var(--yellow); border-radius: 50%; }
+.order-storage-note { margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 5px; }
+.flavor-select:disabled { cursor: not-allowed; opacity: .6; }
+@keyframes waiting-cup { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+@keyframes waiting-steam { 0%, 100% { transform: translateY(3px) scaleX(.8); opacity: .15; } 50% { transform: translateY(-8px) scaleX(1.2); opacity: .4; } }
 
 @media (min-width: 540px) {
   .page-width { width: min(1160px, calc(100% - 64px)); }

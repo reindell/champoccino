@@ -71,8 +71,14 @@ Keep the established simple symbols and SVG artwork. Add, quantity, close, and r
 
 ## Motion
 
-Reuse existing hover transitions and reduced-motion rules. The order window opens without decorative animation. Preserve the current reduced-motion scrolling behavior.
+Reuse existing hover transitions and reduced-motion rules. The order window opens without decorative animation. During preparation, the existing coffee mascot gently rocks with rising steam. This decorative animation has a Pause/Resume control and becomes static with reduced motion. It stops when the customer confirms receipt. Preserve the current reduced-motion scrolling behavior.
 
 ## Workflow
 
-Selections are a customer-held list, shown to café staff to place the order and pay. Never label them as sent, accepted, or paid. Each size and flavor is a separate line, repeated adds increase quantity, and filters preserve the order. Quantity is bounded at 99 per line. Session storage keeps validated selections across refreshes in the same tab; storage failure leaves the in-memory flow usable. Prices always come from MENU. Removing the final selection shows the empty state and hides counter instructions and the order bar. Closing either dialog restores focus to its opener, or the menu when that opener is hidden.
+The customer builds a list, shows it at the counter, and pays there. Each size and flavor is a separate line, repeated adds increase quantity, and filters preserve the order. Quantity is bounded at 99 per line. Removing the final draft selection shows the empty state and hides the counter instructions and order bar.
+
+Per the user's request and explicit same-phone choice on 2026-10-18, the owner or barista confirms payment on the customer's phone. The staff action asks them to review the total and confirm receipt of payment. This is a manual counter acknowledgement on that phone; it does not process a payment, authenticate staff, or send an order to another device. There is no automatic transition or timer that marks an order paid or received.
+
+Confirmed orders enter the preparing state and lock additions, quantities, and flavors. Snapshot item names, sizes/flavors, prices, and quantities at confirmation; later menu changes must not alter that snapshot. Keep the summary available alongside the waiting animation. The customer chooses “I've received my order” and explicitly confirms that everything has arrived before the received state appears. Only then offer “Start a new order,” which clears the completed list and restores selection controls.
+
+The existing session-storage key accepts legacy selection arrays and now saves a versioned object containing both the draft and confirmed progress in one write. Validate both formats and resume preparing/received states across refreshes in the same tab. If storage is blocked, preserve the in-memory flow and tell the customer to keep the page open. This state is local to the customer's tab and is not a payment receipt or shared staff record. Closing either dialog restores focus to its opener, or the menu when that opener is hidden; cancelling a staff or receipt confirmation leaves the prior lifecycle state intact.

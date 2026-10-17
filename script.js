@@ -96,6 +96,12 @@ const MENU = {
   const orderStorageKey = "champoccino-order-v1";
   const maxQuantity = 99;
   const currency = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
+  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let orderProgress = null;
+  let staffConfirmationOpen = false;
+  let receiptConfirmationOpen = false;
+  let animationPaused = false;
+  let orderStorageAvailable = true;
   let selectedCategory = "all";
   let selectedTemperature = "iced";
 
@@ -124,6 +130,8 @@ const MENU = {
     button.dataset.category = category;
     button.dataset.itemIndex = itemIndex;
     button.dataset.size = size;
+    button.disabled = Boolean(orderProgress);
+    if (button.disabled) button.title = "This order is confirmed. Start a new order after receiving it.";
     button.setAttribute("aria-label", `Add ${item.name}${sizeLabels[size] ? `, ${sizeLabels[size]}` : ""} to your order`);
     return button;
   }
@@ -154,6 +162,7 @@ const MENU = {
         const select = element("select", "flavor-select");
         select.id = `flavor-${category}-${itemIndex}`;
         select.name = "flavor";
+        select.disabled = Boolean(orderProgress);
         select.setAttribute("aria-label", `${item.name} flavor`);
         label.htmlFor = select.id;
         for (const flavor of item.options) {
@@ -245,11 +254,34 @@ const MENU = {
     return [sizeLabels[line.size] || (line.category === "addons" ? "Add-on" : "Per serving"), line.option].filter(Boolean).join(" · ");
   }
 
+  function draftOrderLines() {
+    return [...order].map(([key, line]) => ({
+      key,
+      name: getOrderItem(line).name,
+      detail: orderDetail(line),
+      price: getOrderItem(line).prices[line.size],
+      quantity: line.quantity
+    }));
+  }
+
+  function validOrderProgress(progress) {
+    return progress && ["preparing", "received"].includes(progress.phase)
+      && Number.isSafeInteger(progress.confirmedAt) && progress.confirmedAt > 0
+      && (progress.phase !== "received" || (Number.isSafeInteger(progress.receivedAt) && progress.receivedAt >= progress.confirmedAt))
+      && Array.isArray(progress.lines) && progress.lines.length > 0 && progress.lines.length <= 100
+      && progress.lines.every((line) => line
+        && typeof line.name === "string" && line.name.length > 0 && line.name.length <= 120
+        && typeof line.detail === "string" && line.detail.length <= 150
+        && Number.isSafeInteger(line.price) && line.price > 0 && line.price <= 100000
+        && Number.isInteger(line.quantity) && line.quantity >= 1 && line.quantity <= maxQuantity);
+  }
+
   function restoreOrder() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(orderStorageKey));
-      if (!Array.isArray(saved)) return;
-      for (const line of saved) {
+      // Accept selections saved by the original menu as well as the full order lifecycle.
+      const items = Array.isArray(saved) ? saved : saved?.version === 2 && Array.isArray(saved.items) ? saved.items : [];
+      for (const line of items) {
         if (!line || !Object.hasOwn(MENU, line.category) || !Number.isInteger(line.itemIndex)) continue;
         const item = MENU[line.category].items[line.itemIndex];
         if (!item || !Object.hasOwn(item.prices, line.size) || !Number.isInteger(line.quantity) || line.quantity < 1 || line.quantity > maxQuantity) continue;
@@ -260,17 +292,28 @@ const MENU = {
         clean.quantity = Math.min(maxQuantity, clean.quantity + (previous?.quantity || 0));
         order.set(key, clean);
       }
+      if (saved?.version === 2 && validOrderProgress(saved.progress)) {
+        const { phase, confirmedAt, receivedAt, lines } = saved.progress;
+        orderProgress = {
+          phase, confirmedAt,
+          ...(phase === "received" ? { receivedAt } : {}),
+          lines: lines.map(({ name, detail, price, quantity }) => ({ name, detail, price, quantity }))
+        };
+      }
     } catch {
       // Orders still work when browser storage is unavailable or contains invalid data.
+      orderStorageAvailable = false;
     }
   }
 
   function saveOrder() {
     try {
-      if (order.size) sessionStorage.setItem(orderStorageKey, JSON.stringify([...order.values()]));
+      if (order.size || orderProgress) sessionStorage.setItem(orderStorageKey, JSON.stringify({ version: 2, items: [...order.values()], progress: orderProgress }));
       else sessionStorage.removeItem(orderStorageKey);
+      orderStorageAvailable = true;
     } catch {
       // Retain the current selection in memory if this browser blocks storage.
+      orderStorageAvailable = false;
     }
   }
 
@@ -283,19 +326,22 @@ const MENU = {
     let count = 0;
     let total = 0;
     const fragment = document.createDocumentFragment();
-    for (const [key, line] of order) {
-      const item = getOrderItem(line);
-      const price = item.prices[line.size];
+    const lines = orderProgress ? orderProgress.lines : draftOrderLines();
+    for (const line of lines) {
+      const { key, name: itemName, detail, price } = line;
       count += line.quantity;
       total += line.quantity * price;
       const row = element("li", "order-item");
       const heading = element("div", "order-item-heading");
-      heading.append(element("h3", "", item.name), element("strong", "", currency.format(price * line.quantity)));
-      const detail = orderDetail(line);
+      heading.append(element("h3", "", orderProgress ? `${line.quantity} × ${itemName}` : itemName), element("strong", "", currency.format(price * line.quantity)));
       row.append(heading, element("p", "order-item-detail", `${detail} · ${currency.format(price)} each`));
+      if (orderProgress) {
+        fragment.append(row);
+        continue;
+      }
       const controls = element("div", "order-item-controls");
       const quantity = element("div", "order-quantity");
-      const name = `${item.name}, ${detail}`;
+      const name = `${itemName}, ${detail}`;
       function actionButton(action, text, label, className = "") {
         const button = element("button", className, text);
         button.type = "button";
@@ -318,17 +364,132 @@ const MENU = {
     orderItems?.replaceChildren(fragment);
     if (orderBar) orderBar.hidden = count === 0;
     document.body.classList.toggle("has-order", count > 0);
-    document.getElementById("order-count").textContent = `${count} ${count === 1 ? "item" : "items"}`;
+    const phaseLabel = orderProgress?.phase === "preparing" ? "Preparing · " : orderProgress?.phase === "received" ? "Received · " : "";
+    document.getElementById("order-count").textContent = `${phaseLabel}${count} ${count === 1 ? "item" : "items"}`;
     document.getElementById("order-bar-total").textContent = currency.format(total);
     document.getElementById("order-total").textContent = currency.format(total);
     document.getElementById("order-empty").hidden = count > 0;
-    document.getElementById("counter-instructions").hidden = count === 0;
+    document.getElementById("counter-instructions").hidden = count === 0 || Boolean(orderProgress);
     document.getElementById("order-total-row").hidden = count === 0;
+    document.getElementById("order-total-label").textContent = orderProgress ? "Total confirmed at the counter" : "Total to pay at the counter";
+    document.getElementById("payment-confirm-total").textContent = currency.format(total);
+    renderOrderStage(count);
   }
+
+  function renderOrderStage(count) {
+    const phase = orderProgress?.phase || "draft";
+    const preparing = phase === "preparing";
+    const received = phase === "received";
+    const progressPanel = document.getElementById("order-progress");
+    orderDialog.dataset.orderPhase = phase;
+    progressPanel.hidden = phase === "draft";
+    progressPanel.classList.toggle("animation-paused", animationPaused);
+    document.getElementById("waiting-visual").hidden = !preparing;
+    document.getElementById("received-visual").hidden = !received;
+    document.getElementById("order-stage-label").textContent = received ? "ORDER RECEIVED" : "CONFIRMED AT THE COUNTER";
+    document.getElementById("order-stage-title").textContent = received ? "Enjoy every sip & bite." : "We're preparing your order.";
+    document.getElementById("order-stage-message").textContent = received
+      ? "Thanks for visiting Champoccino & Whisk'N. See you again soon!"
+      : "Please wait for our staff to call your order. Confirm below once you've received everything.";
+    document.getElementById("order-description").textContent = phase === "draft"
+      ? "Your favorites, ready to show our staff."
+      : received ? "All received. Thanks for spending a little time with us." : "Keep this screen until you receive your order.";
+    const pauseButton = document.getElementById("pause-order-animation");
+    pauseButton.hidden = !preparing || motionPreference.matches;
+    pauseButton.textContent = animationPaused ? "Resume animation" : "Pause animation";
+    pauseButton.setAttribute("aria-pressed", String(animationPaused));
+    document.getElementById("received-order").hidden = !preparing || receiptConfirmationOpen;
+    document.getElementById("receipt-confirmation").hidden = !preparing || !receiptConfirmationOpen;
+    document.getElementById("staff-payment").hidden = count === 0 || phase !== "draft";
+    document.getElementById("staff-confirm-payment").hidden = staffConfirmationOpen;
+    document.getElementById("payment-confirmation").hidden = !staffConfirmationOpen;
+    document.getElementById("new-order").hidden = !received;
+    document.getElementById("order-storage-note").hidden = orderStorageAvailable || count === 0;
+    const arrow = element("span", "", "→");
+    arrow.setAttribute("aria-hidden", "true");
+    document.getElementById("show-order").replaceChildren(document.createTextNode(orderProgress ? "View my order " : "Show my order "), arrow);
+    const helper = document.getElementById("order-help");
+    if (phase === "draft") helper.replaceChildren("Tap ", element("strong", "", "+ Add"), " to choose your favorites. Show your order and pay at the counter.");
+    else helper.textContent = received ? "Order received! Open your order to start a new one." : "Your order is being prepared. Tap View my order to see your confirmed items.";
+  }
+
+  function focusOrderStage() {
+    const heading = document.getElementById("order-stage-title");
+    heading.focus({ preventScroll: true });
+    document.getElementById("order-progress").scrollIntoView({ behavior: "instant", block: "start" });
+  }
+
+  document.getElementById("staff-confirm-payment").addEventListener("click", () => {
+    if (!order.size || orderProgress) return;
+    staffConfirmationOpen = true;
+    renderOrder();
+    document.getElementById("cancel-payment").focus();
+  });
+  document.getElementById("cancel-payment").addEventListener("click", () => {
+    staffConfirmationOpen = false;
+    renderOrder();
+    document.getElementById("staff-confirm-payment").focus();
+  });
+  document.getElementById("confirm-payment").addEventListener("click", () => {
+    if (!staffConfirmationOpen || !order.size || orderProgress) return;
+    orderProgress = {
+      phase: "preparing", confirmedAt: Date.now(),
+      lines: draftOrderLines().map(({ name, detail, price, quantity }) => ({ name, detail, price, quantity }))
+    };
+    staffConfirmationOpen = false;
+    saveOrder();
+    renderOrder();
+    renderMenu();
+    announceOrder("Payment confirmed at the counter. Your order is being prepared.");
+    focusOrderStage();
+  });
+  document.getElementById("received-order").addEventListener("click", () => {
+    if (orderProgress?.phase !== "preparing") return;
+    receiptConfirmationOpen = true;
+    renderOrder();
+    document.getElementById("cancel-received").focus();
+  });
+  document.getElementById("cancel-received").addEventListener("click", () => {
+    receiptConfirmationOpen = false;
+    renderOrder();
+    document.getElementById("received-order").focus();
+  });
+  document.getElementById("confirm-received").addEventListener("click", () => {
+    if (!receiptConfirmationOpen || orderProgress?.phase !== "preparing") return;
+    orderProgress = { ...orderProgress, phase: "received", receivedAt: Math.max(Date.now(), orderProgress.confirmedAt) };
+    receiptConfirmationOpen = false;
+    saveOrder();
+    renderOrder();
+    announceOrder("Order received. Enjoy every sip and bite!");
+    focusOrderStage();
+  });
+  document.getElementById("pause-order-animation").addEventListener("click", () => {
+    if (orderProgress?.phase !== "preparing") return;
+    animationPaused = !animationPaused;
+    renderOrder();
+  });
+  motionPreference.addEventListener("change", () => renderOrder());
+  document.getElementById("new-order").addEventListener("click", () => {
+    if (orderProgress?.phase !== "received") return;
+    orderProgress = null;
+    order.clear();
+    animationPaused = false;
+    saveOrder();
+    renderOrder();
+    renderMenu();
+    orderDialog.close();
+    moveTo(document.getElementById("menu"));
+    announceOrder("Start a new order. Choose a drink or a bite from the menu.");
+  });
+  orderDialog.addEventListener("close", () => {
+    staffConfirmationOpen = false;
+    receiptConfirmationOpen = false;
+    renderOrder();
+  });
 
   menuContent?.addEventListener("click", (event) => {
     const button = event.target.closest("button.add-to-order");
-    if (!button || !menuContent.contains(button)) return;
+    if (!button || button.disabled || orderProgress || !menuContent.contains(button)) return;
     const { category, size } = button.dataset;
     const itemIndex = Number(button.dataset.itemIndex);
     const item = MENU[category]?.items[itemIndex];
@@ -350,7 +511,7 @@ const MENU = {
 
   orderItems?.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-order-action]");
-    if (!button || !orderItems.contains(button)) return;
+    if (!button || orderProgress || !orderItems.contains(button)) return;
     const { orderKey: key, orderAction: action } = button.dataset;
     const line = order.get(key);
     if (!line) return;
@@ -360,6 +521,7 @@ const MENU = {
     else if (action === "decrease") line.quantity -= 1;
     else if (action === "increase") line.quantity = Math.min(maxQuantity, line.quantity + 1);
     else return;
+    staffConfirmationOpen = false;
     saveOrder();
     renderOrder();
     // Re-rendered quantity controls retain focus; removal moves to a surviving row.

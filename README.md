@@ -57,6 +57,9 @@ Then visit `http://localhost:8000/`. Google Fonts loads Anton and Poppins when o
 - **+ Add** adds the chosen drink size, snack, meal, or add-on to the customer's order. Fries and Nachos include a flavor choice.
 - **Show my order** opens a summary with quantities, sizes, flavors, and the total, plus a message to proceed to the counter and pay as you order. Customers show this screen to staff to place their order. Quantity controls and Remove let them edit the list.
 - Selections stay intact when changing categories or temperature, and survive a refresh in the same tab when browser session storage is available. This is a customer-held list; orders and payments are handled at the counter.
+- After collecting payment, the owner or barista taps **For staff: confirm payment** on the customer's phone and confirms the displayed total. The order then locks and shows an animated waiting screen. The animation can be paused and respects reduced-motion preferences.
+- When everything arrives, the customer taps **I've received my order** and confirms receipt. **Start a new order** then clears the completed order and enables the menu's Add buttons again.
+- Confirmed items and prices are preserved while waiting, including after a refresh in the same tab. Confirmation is recorded only on that phone; it does not charge a payment, authenticate staff, or update a separate staff device.
 - **View Full Menu Image** opens the full image in a modal. Close it with the close button, Escape, or the backdrop. Keyboard focus stays inside the modal and returns to the opening button when closed. The Download link saves `assets/menu.jpg`.
 - The floating **Back to top** button appears after scrolling.
 

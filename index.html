@@ -89,7 +89,7 @@
             <p class="featured-legend"><span aria-hidden="true">★</span> Featured</p>
           </div>
           <p class="sr-only" id="menu-status" role="status" aria-live="polite" aria-atomic="true"></p>
-          <p class="order-help">Tap <strong>+ Add</strong> to choose your favorites. Show your order and pay at the counter.</p>
+          <p class="order-help" id="order-help">Tap <strong>+ Add</strong> to choose your favorites. Show your order and pay at the counter.</p>
           <p class="sr-only" id="order-status" role="status" aria-live="polite" aria-atomic="true"></p>
           <div id="menu-content"></div>
           <noscript><p class="no-script">Enable JavaScript to filter the menu, or <a href="assets/menu.jpg">view the full menu image</a>.</p></noscript>
@@ -130,11 +130,38 @@
         <strong>Please proceed to the counter and pay as you order.</strong>
         <p>Show this order to our staff to place your order.</p>
       </div>
+      <section id="order-progress" class="order-progress" aria-labelledby="order-stage-title" hidden>
+        <div id="waiting-visual" class="waiting-visual" aria-hidden="true">
+          <div class="waiting-steam"><span></span><span></span><span></span></div>
+          <img src="assets/mascot-coffee.svg" alt="" width="140" height="150">
+        </div>
+        <div id="received-visual" class="received-visual" aria-hidden="true" hidden><svg viewBox="0 0 64 64" width="64" height="64" fill="none"><circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2"/><path d="m19 32 9 9 17-18" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <p id="order-stage-label" class="eyebrow"></p>
+        <h3 id="order-stage-title" tabindex="-1"></h3>
+        <p id="order-stage-message"></p>
+        <button type="button" id="pause-order-animation" class="motion-control" aria-pressed="false">Pause animation</button>
+        <button type="button" id="received-order" class="button button-primary">I've received my order</button>
+        <div id="receipt-confirmation" class="order-confirmation" role="group" aria-labelledby="receipt-confirm-heading" hidden>
+          <h4 id="receipt-confirm-heading">Have you received everything?</h4>
+          <p>Confirm once you have all the items in this order.</p>
+          <div class="confirmation-actions"><button type="button" id="cancel-received" class="button button-outline">Still waiting</button><button type="button" id="confirm-received" class="button button-primary">Yes, I've received it</button></div>
+        </div>
+      </section>
       <p id="order-empty" class="order-empty" hidden>Your order is empty. Add a drink or a bite from the menu to get started.</p>
       <ul id="order-items" class="order-items" aria-label="Selected items"></ul>
-      <div id="order-total-row" class="order-total-row"><span>Total to pay at the counter</span><strong id="order-total">₱0</strong></div>
+      <div id="order-total-row" class="order-total-row"><span id="order-total-label">Total to pay at the counter</span><strong id="order-total">₱0</strong></div>
+      <div id="staff-payment" class="staff-payment" hidden>
+        <p>After paying, ask the owner or barista to confirm on this phone.</p>
+        <button type="button" id="staff-confirm-payment" class="button button-outline">For staff: confirm payment</button>
+        <div id="payment-confirmation" class="order-confirmation" role="group" aria-labelledby="payment-confirm-heading" hidden>
+          <h3 id="payment-confirm-heading">Staff confirmation</h3>
+          <p>Have you received <strong id="payment-confirm-total">₱0</strong> for all the items above? Confirming locks this order and starts the waiting screen.</p>
+          <div class="confirmation-actions"><button type="button" id="cancel-payment" class="button button-outline">Go back</button><button type="button" id="confirm-payment" class="button button-primary">Payment received</button></div>
+        </div>
+      </div>
+      <p id="order-storage-note" class="order-storage-note" hidden>Keep this page open. This browser cannot save your order if the page is refreshed.</p>
       <p class="sr-only" id="order-dialog-status" role="status" aria-live="polite" aria-atomic="true"></p>
-      <div class="order-dialog-footer"><button type="button" id="continue-order" class="button button-outline">Back to menu</button></div>
+      <div class="order-dialog-footer"><button type="button" id="new-order" class="button button-primary" hidden>Start a new order</button><button type="button" id="continue-order" class="button button-outline">Back to menu</button></div>
     </dialog>
 
     <dialog id="menu-dialog" class="menu-dialog" aria-labelledby="dialog-heading" aria-describedby="dialog-description">
