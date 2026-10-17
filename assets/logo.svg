@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 170" role="img">
+  <g fill="none" stroke="#5A4D41" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m19 59 273-34m133 0 272 34c17 2 22 13 22 27s-5 25-22 28l-292 39a342 342 0 0 1-90 0L23 114C6 111 1 100 1 86s5-25 18-27Z" stroke-width="4"/>
+    <path d="m26 68 264-33m138 0 261 33c12 2 18 8 18 18s-5 16-18 18l-286 39a325 325 0 0 1-86 0L27 104c-12-2-16-8-16-18s4-16 15-18Z" stroke-width="2"/>
+    <path d="M324 20h69l-6 40c-2 13-54 13-56 0Z" fill="#F6F1EA" stroke-width="3"/>
+    <path d="M393 27h7c13 0 11 23-10 23" stroke-width="3"/>
+    <ellipse cx="358" cy="20" rx="34" ry="9" fill="#5A4D41" stroke-width="3"/>
+    <path d="M342 11c-5-5 5-6 2-10m15 9c-5-5 5-6 2-10m14 11c-5-5 5-6 2-10" stroke-width="2.5"/>
+    <path d="M347 40h1m21 0h1m-22 12c5 5 12 5 17 0" stroke-width="4"/>
+  </g>
+  <path d="M126 68h468v50H126z" fill="#F6F1EA"/>
+  <text x="360" y="110" fill="#5A4D41" text-anchor="middle" font-family="'Brush Script MT', 'Segoe Script', cursive" font-size="78" font-style="italic" font-weight="700" letter-spacing="-4">Champoccino</text>
+</svg>

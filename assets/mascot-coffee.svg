@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" fill="none">
+  <g stroke="#5A4D41" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="144" cy="298" rx="86" ry="12" fill="#5A4D41" stroke="none"/>
+    <path d="M113 236c-4 16-9 28-17 40m66-37c4 13 9 21 18 30"/>
+    <path d="M87 266c-12-9-23-3-20 8 3 11 18 24 29 23 11-2 14-11 7-18l-6-8m73-3c3-14 15-18 23-9 7 8 7 25-2 31-9 5-21 1-22-9" fill="#FFFEF8"/>
+    <path d="M68 276c7 8 15 15 25 16m84-3c9 1 15-3 19-9" stroke-width="2.5"/>
+    <path d="M78 107c-32-18-52 1-45 35 5 24 21 40 44 40l5-20c-15 2-25-9-29-23-3-11 1-19 12-16l14 8" fill="#FFFEF8"/>
+    <path d="M203 136c18 1 32-8 40-25"/>
+    <path d="M238 117c-10-6-12-14-11-21 1-5 6-7 10 0l3 6-2-24c0-7 7-8 9-1l4 17 3-24c1-7 8-6 8 1l-1 22 8-17c3-6 9-2 6 5l-7 19 8-7c6-5 11 0 6 6l-14 15c-6 9-17 12-30 3Z" fill="#FFFEF8"/>
+    <path d="m233 108 7 9m5-7c6 2 13 1 18-3" stroke-width="2.5"/>
+    <path d="M82 171c-11 4-17 10-18 21m5 14c-9 1-15-2-18-8-4-8 3-12 8-6-8-8-3-15 4-9-3-10 4-14 8-5l6 15" fill="#FFFEF8"/>
+    <path d="M74 198c-4 5-7 8-11 8" stroke-width="2.5"/>
+    <path d="M75 88h140l-10 123c-2 25-25 37-60 37-34 0-57-13-59-38Z" fill="#FFFEF8"/>
+    <ellipse cx="145" cy="88" rx="70" ry="24" fill="#FFFEF8"/>
+    <ellipse cx="145" cy="89" rx="58" ry="15" fill="#5A4D41" stroke="none"/>
+    <path d="M97 89c12-10 72-14 97-1m-69 0c12-3 23-2 29 0m-20 7 16 1" stroke="#FFFEF8" stroke-width="2.5"/>
+    <circle cx="103" cy="79" r="3.5" fill="#FFFEF8" stroke-width="2"/>
+    <circle cx="114" cy="77" r="2" fill="#FFFEF8" stroke-width="1.5"/>
+    <path d="M109 154c4-6 11-6 16 0m30-9c1-6 7-6 8 0" stroke-width="3.5"/>
+    <path d="M109 165c5-7 11-7 16 0"/>
+    <ellipse cx="159" cy="163" rx="4" ry="8" fill="#5A4D41" stroke="none"/>
+    <path d="M124 187c9 13 23 13 33-1"/>
+    <path d="M101 178h6m67 0h6" stroke-width="2.5"/>
+    <path d="M109 43c-10-12 11-16 2-29m30 30c-9-13 11-16 2-29m29 28c-9-12 11-16 2-29" stroke-width="3.5"/>
+    <path d="m266 49 1-10m15 17 7-8m-34 0-5-9" stroke-width="3"/>
+  </g>
+</svg>

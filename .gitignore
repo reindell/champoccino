@@ -1,0 +1,3 @@
+# Local downloads and verification artifacts are not part of the site.
+*.zip
+.qa/
