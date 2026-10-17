@@ -8,6 +8,13 @@ A mobile-first digital menu for **Champoccino** and its sister brand, **Whisk'N 
 - Source repository: [reindell/champoccino](https://github.com/reindell/champoccino)
 - Publishing source: `main`, `/ (root)`. Future pushes to `main` publish automatically.
 
+## QR code
+
+- [Download the PNG QR code](assets/champoccino-qr.png) for sharing or adding to a table sign.
+- [Download the SVG QR code](assets/champoccino-qr.svg) for printing at any size.
+
+The QR code opens `https://reindell.github.io/champoccino/` directly. Keep the white border around it when printing. Menu changes at the same URL do not require a new QR code; regenerate it if the site address changes.
+
 ## Files
 
 ```text
@@ -23,6 +30,8 @@ assets/
   mascot-iced.svg
   mascot-fries.svg
   menu.jpg
+  champoccino-qr.png
+  champoccino-qr.svg
 ```
 
 The lightweight SVG logo and cartoon mascots are editable starter artwork. The included **menu.jpg is a typeset recreation of the supplied menu content and visual reference**, containing all 31 items and their prices; it is not the original uploaded artwork. Replace it with your original high-resolution export whenever available, keeping the same filename.
