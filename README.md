@@ -2,6 +2,12 @@
 
 A mobile-first digital menu for **Champoccino** and its sister brand, **Whisk'N by Champoccino**. Built with plain HTML, CSS, and vanilla JavaScript. No installation, build step, or backend is required.
 
+## GitHub Pages site
+
+- Site URL: [reindell.github.io/champoccino](https://reindell.github.io/champoccino/)
+- Source repository: [reindell/champoccino](https://github.com/reindell/champoccino)
+- Publishing source: `main`, `/ (root)`. Future pushes to `main` publish automatically.
+
 ## Files
 
 ```text
@@ -74,7 +80,7 @@ These instructions use your GitHub account, `reindell`, and the example reposito
 
 8. Open the live link on your phone and test the category buttons and full-menu image. Use that full HTTPS URL as the destination for a printed QR code, social profile link, or table sign.
 
-The publishing steps follow [GitHub's official Pages documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site). Files are ready for deployment; this folder does not automatically create or publish a GitHub repository.
+The publishing steps follow [GitHub's official Pages documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site). The `reindell/champoccino` repository already has Pages configured; use the setup steps above when deploying a separate copy.
 
 ## Update a price
 
