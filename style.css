@@ -150,7 +150,7 @@ h2 { font-size: clamp(38px, 8vw, 52px); line-height: 1.25; margin-top: 7px; }
 .social-group a > span:last-child { margin-left: 8px; }
 .social-group a:hover { color: var(--cream); text-decoration: underline; }
 .social-icon { width: 18px; height: 18px; display: inline-grid; place-items: center; border: 1px solid var(--cream); border-radius: 50%; font: 700 12px Arial, sans-serif; }
-.instagram-icon { border-radius: 5px; font-size: 18px; font-weight: 400; }
+.instagram-icon { width: 20px; height: 20px; border: 0; border-radius: 0; }
 .footer-bottom { border-top: 1px solid #ffffff2e; margin-top: 18px; padding-block: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 8px; color: var(--cream); }
 .footer-bottom > p:last-child { letter-spacing: 1px; }
 .footer-bottom span { margin-left: 5px; color: var(--yellow); }
