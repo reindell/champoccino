@@ -54,6 +54,9 @@ Then visit `http://localhost:8000/`. Google Fonts loads Anton and Poppins when o
 - Category buttons filter the menu immediately. The default selection is **All**, with **Iced** drinks.
 - **Hot / Iced** controls Coffee and Matcha: Hot shows 8oz; Iced shows 12oz and 16oz. Iced-only items disappear when Hot is selected. In All, the other categories stay visible and retain their normal sizes.
 - A yellow star marks a featured item. Prices use Philippine pesos (₱).
+- **+ Add** adds the chosen drink size, snack, meal, or add-on to the customer's order. Fries and Nachos include a flavor choice.
+- **Show my order** opens a summary with quantities, sizes, flavors, and the total, plus a message to proceed to the counter and pay as you order. Customers show this screen to staff to place their order. Quantity controls and Remove let them edit the list.
+- Selections stay intact when changing categories or temperature, and survive a refresh in the same tab when browser session storage is available. This is a customer-held list; orders and payments are handled at the counter.
 - **View Full Menu Image** opens the full image in a modal. Close it with the close button, Escape, or the backdrop. Keyboard focus stays inside the modal and returns to the opening button when closed. The Download link saves `assets/menu.jpg`.
 - The floating **Back to top** button appears after scrolling.
 

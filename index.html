@@ -89,6 +89,8 @@
             <p class="featured-legend"><span aria-hidden="true">★</span> Featured</p>
           </div>
           <p class="sr-only" id="menu-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          <p class="order-help">Tap <strong>+ Add</strong> to choose your favorites. Show your order and pay at the counter.</p>
+          <p class="sr-only" id="order-status" role="status" aria-live="polite" aria-atomic="true"></p>
           <div id="menu-content"></div>
           <noscript><p class="no-script">Enable JavaScript to filter the menu, or <a href="assets/menu.jpg">view the full menu image</a>.</p></noscript>
           <div class="full-menu-callout"><span class="callout-star" aria-hidden="true">✦</span><div><h3>More of a big-picture person?</h3><p>See all the good stuff on one menu.</p></div><button type="button" class="button button-outline" data-open-menu>View Full Menu Image <span aria-hidden="true">↗</span></button></div>
@@ -113,6 +115,27 @@
     </footer>
 
     <button type="button" id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top" hidden><span aria-hidden="true">↑</span></button>
+
+    <aside id="order-bar" class="order-bar" aria-label="Your selected order" hidden>
+      <div class="order-bar-inner page-width">
+        <div class="order-bar-summary"><span id="order-count">0 items</span><strong id="order-bar-total">₱0</strong></div>
+        <button type="button" id="show-order" class="button button-primary" aria-haspopup="dialog" aria-controls="order-dialog">Show my order <span aria-hidden="true">→</span></button>
+      </div>
+    </aside>
+
+    <dialog id="order-dialog" class="menu-dialog order-dialog" aria-labelledby="order-heading" aria-describedby="order-description">
+      <div class="dialog-header"><div><p class="eyebrow">CHAMPOCCINO &amp; WHISK’N</p><h2 id="order-heading">Your order.</h2></div><button type="button" id="close-order" class="close-menu" aria-label="Close your order" autofocus><span aria-hidden="true">×</span></button></div>
+      <p id="order-description" class="order-description">Your favorites, ready to show our staff.</p>
+      <div id="counter-instructions" class="counter-instructions">
+        <strong>Please proceed to the counter and pay as you order.</strong>
+        <p>Show this order to our staff to place your order.</p>
+      </div>
+      <p id="order-empty" class="order-empty" hidden>Your order is empty. Add a drink or a bite from the menu to get started.</p>
+      <ul id="order-items" class="order-items" aria-label="Selected items"></ul>
+      <div id="order-total-row" class="order-total-row"><span>Total to pay at the counter</span><strong id="order-total">₱0</strong></div>
+      <p class="sr-only" id="order-dialog-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div class="order-dialog-footer"><button type="button" id="continue-order" class="button button-outline">Back to menu</button></div>
+    </dialog>
 
     <dialog id="menu-dialog" class="menu-dialog" aria-labelledby="dialog-heading" aria-describedby="dialog-description">
       <div class="dialog-header"><div><p class="eyebrow">CHAMPOCCINO &amp; WHISK’N</p><h2 id="dialog-heading">The full menu.</h2></div><button type="button" id="close-menu" class="close-menu" aria-label="Close full menu" autofocus><span aria-hidden="true">×</span></button></div>

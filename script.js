@@ -62,8 +62,8 @@ const MENU = {
     mascot: "assets/mascot-fries.svg",
     mascotAlt: "A playful cartoon carton of fries waving hello",
     items: [
-      { name: "Fries", description: "Cheese, Sour & Cream, or BBQ", prices: { single: 99 } },
-      { name: "Nachos", description: "Cheese or BBQ", prices: { single: 99 } },
+      { name: "Fries", description: "Cheese, Sour & Cream, or BBQ", options: ["Cheese", "Sour & Cream", "BBQ"], prices: { single: 99 } },
+      { name: "Nachos", description: "Cheese or BBQ", options: ["Cheese", "BBQ"], prices: { single: 99 } },
       { name: "Tapsilog", prices: { single: 129 } },
       { name: "Hungarian Silog", prices: { single: 129 } },
       { name: "Sisig", prices: { single: 129 } }
@@ -89,6 +89,13 @@ const MENU = {
   const categoryFilters = document.getElementById("category-filters");
   const temperatureControls = document.getElementById("temperature-controls");
   const temperatureNote = document.getElementById("temperature-note");
+  const orderDialog = document.getElementById("order-dialog");
+  const orderItems = document.getElementById("order-items");
+  const orderBar = document.getElementById("order-bar");
+  const order = new Map();
+  const orderStorageKey = "champoccino-order-v1";
+  const maxQuantity = 99;
+  const currency = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
   let selectedCategory = "all";
   let selectedTemperature = "iced";
 
@@ -109,6 +116,16 @@ const MENU = {
       ? ["hot8"]
       : ["iced12", "iced16"];
     return sizes.filter((size) => Object.hasOwn(item.prices, size));
+  }
+
+  function makeAddButton(item, category, itemIndex, size) {
+    const button = element("button", "add-to-order", "+ Add");
+    button.type = "button";
+    button.dataset.category = category;
+    button.dataset.itemIndex = itemIndex;
+    button.dataset.size = size;
+    button.setAttribute("aria-label", `Add ${item.name}${sizeLabels[size] ? `, ${sizeLabels[size]}` : ""} to your order`);
+    return button;
   }
 
   function makeCard(item, category, sizes, itemIndex) {
@@ -132,12 +149,29 @@ const MENU = {
       price.append(element("span", "single-price-label", category === "addons" ? "Add to your drink" : "Per serving"));
       price.append(element("span", "single-price-value", `₱${item.prices.single}`));
       card.append(price);
+      if (item.options) {
+        const label = element("label", "flavor-label", "Flavor");
+        const select = element("select", "flavor-select");
+        select.id = `flavor-${category}-${itemIndex}`;
+        select.name = "flavor";
+        select.setAttribute("aria-label", `${item.name} flavor`);
+        label.htmlFor = select.id;
+        for (const flavor of item.options) {
+          const option = element("option", "", flavor);
+          option.value = flavor;
+          select.append(option);
+        }
+        card.append(label, select);
+      }
+      card.append(makeAddButton(item, category, itemIndex, "single"));
     } else {
       const prices = element("dl", "prices");
       for (const size of sizes) {
         const option = element("div", "price-option");
         option.append(element("dt", "", sizeLabels[size]));
-        option.append(element("dd", "", `₱${item.prices[size]}`));
+        const value = element("dd");
+        value.append(element("span", "single-price-value", `₱${item.prices[size]}`), makeAddButton(item, category, itemIndex, size));
+        option.append(value);
         prices.append(option);
       }
       card.append(prices);
@@ -199,6 +233,143 @@ const MENU = {
     }
   }
 
+  function orderKey(line) {
+    return JSON.stringify([line.category, line.itemIndex, line.size, line.option]);
+  }
+
+  function getOrderItem(line) {
+    return MENU[line.category].items[line.itemIndex];
+  }
+
+  function orderDetail(line) {
+    return [sizeLabels[line.size] || (line.category === "addons" ? "Add-on" : "Per serving"), line.option].filter(Boolean).join(" · ");
+  }
+
+  function restoreOrder() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(orderStorageKey));
+      if (!Array.isArray(saved)) return;
+      for (const line of saved) {
+        if (!line || !Object.hasOwn(MENU, line.category) || !Number.isInteger(line.itemIndex)) continue;
+        const item = MENU[line.category].items[line.itemIndex];
+        if (!item || !Object.hasOwn(item.prices, line.size) || !Number.isInteger(line.quantity) || line.quantity < 1 || line.quantity > maxQuantity) continue;
+        if (item.options ? !item.options.includes(line.option) : line.option !== "") continue;
+        const clean = { category: line.category, itemIndex: line.itemIndex, size: line.size, option: line.option, quantity: line.quantity };
+        const key = orderKey(clean);
+        const previous = order.get(key);
+        clean.quantity = Math.min(maxQuantity, clean.quantity + (previous?.quantity || 0));
+        order.set(key, clean);
+      }
+    } catch {
+      // Orders still work when browser storage is unavailable or contains invalid data.
+    }
+  }
+
+  function saveOrder() {
+    try {
+      if (order.size) sessionStorage.setItem(orderStorageKey, JSON.stringify([...order.values()]));
+      else sessionStorage.removeItem(orderStorageKey);
+    } catch {
+      // Retain the current selection in memory if this browser blocks storage.
+    }
+  }
+
+  function announceOrder(message) {
+    const status = document.getElementById(orderDialog?.open ? "order-dialog-status" : "order-status");
+    if (status) status.textContent = message;
+  }
+
+  function renderOrder() {
+    let count = 0;
+    let total = 0;
+    const fragment = document.createDocumentFragment();
+    for (const [key, line] of order) {
+      const item = getOrderItem(line);
+      const price = item.prices[line.size];
+      count += line.quantity;
+      total += line.quantity * price;
+      const row = element("li", "order-item");
+      const heading = element("div", "order-item-heading");
+      heading.append(element("h3", "", item.name), element("strong", "", currency.format(price * line.quantity)));
+      const detail = orderDetail(line);
+      row.append(heading, element("p", "order-item-detail", `${detail} · ${currency.format(price)} each`));
+      const controls = element("div", "order-item-controls");
+      const quantity = element("div", "order-quantity");
+      const name = `${item.name}, ${detail}`;
+      function actionButton(action, text, label, className = "") {
+        const button = element("button", className, text);
+        button.type = "button";
+        button.dataset.orderAction = action;
+        button.dataset.orderKey = key;
+        button.setAttribute("aria-label", `${label} ${name}`);
+        return button;
+      }
+      const decrease = actionButton("decrease", "−", "Remove one");
+      const increase = actionButton("increase", "+", "Add one");
+      increase.disabled = line.quantity >= maxQuantity;
+      if (increase.disabled) increase.title = `Maximum ${maxQuantity} per item`;
+      const value = element("output", "", String(line.quantity));
+      value.setAttribute("aria-label", `Quantity for ${name}`);
+      quantity.append(decrease, value, increase);
+      controls.append(quantity, actionButton("remove", "Remove", "Remove all", "order-remove"));
+      row.append(controls);
+      fragment.append(row);
+    }
+    orderItems?.replaceChildren(fragment);
+    if (orderBar) orderBar.hidden = count === 0;
+    document.body.classList.toggle("has-order", count > 0);
+    document.getElementById("order-count").textContent = `${count} ${count === 1 ? "item" : "items"}`;
+    document.getElementById("order-bar-total").textContent = currency.format(total);
+    document.getElementById("order-total").textContent = currency.format(total);
+    document.getElementById("order-empty").hidden = count > 0;
+    document.getElementById("counter-instructions").hidden = count === 0;
+    document.getElementById("order-total-row").hidden = count === 0;
+  }
+
+  menuContent?.addEventListener("click", (event) => {
+    const button = event.target.closest("button.add-to-order");
+    if (!button || !menuContent.contains(button)) return;
+    const { category, size } = button.dataset;
+    const itemIndex = Number(button.dataset.itemIndex);
+    const item = MENU[category]?.items[itemIndex];
+    if (!item || !Object.hasOwn(item.prices, size)) return;
+    const option = button.closest(".menu-card").querySelector("select[name='flavor']")?.value || "";
+    const line = { category, itemIndex, size, option, quantity: 1 };
+    const key = orderKey(line);
+    const existing = order.get(key);
+    if (existing?.quantity >= maxQuantity) {
+      announceOrder(`You can add up to ${maxQuantity} of ${item.name}, ${orderDetail(line)}.`);
+      return;
+    }
+    if (existing) existing.quantity += 1;
+    else order.set(key, line);
+    saveOrder();
+    renderOrder();
+    announceOrder(`Added ${item.name}, ${orderDetail(line)}. Your order has ${document.getElementById("order-count").textContent}.`);
+  });
+
+  orderItems?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-order-action]");
+    if (!button || !orderItems.contains(button)) return;
+    const { orderKey: key, orderAction: action } = button.dataset;
+    const line = order.get(key);
+    if (!line) return;
+    const rowIndex = [...order.keys()].indexOf(key);
+    const itemName = getOrderItem(line).name;
+    if (action === "remove" || (action === "decrease" && line.quantity === 1)) order.delete(key);
+    else if (action === "decrease") line.quantity -= 1;
+    else if (action === "increase") line.quantity = Math.min(maxQuantity, line.quantity + 1);
+    else return;
+    saveOrder();
+    renderOrder();
+    // Re-rendered quantity controls retain focus; removal moves to a surviving row.
+    const buttons = [...orderItems.querySelectorAll("button[data-order-action]")];
+    const sameAction = buttons.find((node) => node.dataset.orderKey === key && node.dataset.orderAction === action && !node.disabled);
+    const nextRow = orderItems.children[Math.min(rowIndex, order.size - 1)];
+    (sameAction || nextRow?.querySelector("button") || document.getElementById("continue-order"))?.focus({ preventScroll: true });
+    announceOrder(order.size ? `${itemName} updated. Total ${document.getElementById("order-total").textContent}.` : "Your order is empty. Add a drink or a bite from the menu.");
+  });
+
   if (categoryFilters) {
     categoryFilters.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-category]");
@@ -256,29 +427,26 @@ const MENU = {
   }
 
   // Native dialog supplies the modal semantics, focus containment, and Escape support.
-  const dialog = document.getElementById("menu-dialog");
-  const closeMenu = document.getElementById("close-menu");
-  let dialogOpener = null;
-  let pointerStartedOutside = false;
-
-  function outsideDialog(event) {
-    if (event.target !== dialog) return false;
-    const bounds = dialog.getBoundingClientRect();
-    return event.clientX < bounds.left || event.clientX > bounds.right
-      || event.clientY < bounds.top || event.clientY > bounds.bottom;
-  }
-
-  if (dialog) {
-    document.querySelectorAll("[data-open-menu]").forEach((button) => {
+  function bindModal(dialog, openers, closeButtons) {
+    if (!dialog) return;
+    let dialogOpener = null;
+    let pointerStartedOutside = false;
+    function outsideDialog(event) {
+      if (event.target !== dialog) return false;
+      const bounds = dialog.getBoundingClientRect();
+      return event.clientX < bounds.left || event.clientX > bounds.right
+        || event.clientY < bounds.top || event.clientY > bounds.bottom;
+    }
+    openers.forEach((button) => {
       button.addEventListener("click", () => {
         if (dialog.open) return;
         dialogOpener = button;
         dialog.showModal();
         document.documentElement.classList.add("dialog-open");
-        closeMenu?.focus({ preventScroll: true });
+        dialog.querySelector("[autofocus]")?.focus({ preventScroll: true });
       });
     });
-    closeMenu?.addEventListener("click", () => dialog.close());
+    closeButtons.forEach((button) => button.addEventListener("click", () => dialog.close()));
     dialog.addEventListener("pointerdown", (event) => {
       pointerStartedOutside = outsideDialog(event);
     });
@@ -288,8 +456,9 @@ const MENU = {
     });
     dialog.addEventListener("pointercancel", () => { pointerStartedOutside = false; });
     dialog.addEventListener("close", () => {
-      document.documentElement.classList.remove("dialog-open");
-      if (dialogOpener?.isConnected) dialogOpener.focus({ preventScroll: true });
+      document.documentElement.classList.toggle("dialog-open", Boolean(document.querySelector("dialog[open]")));
+      const returnTarget = dialogOpener?.isConnected && dialogOpener.getClientRects().length ? dialogOpener : document.getElementById("menu");
+      returnTarget?.focus({ preventScroll: true });
       dialogOpener = null;
     });
     dialog.addEventListener("keydown", (event) => {
@@ -310,6 +479,9 @@ const MENU = {
       }
     });
   }
+
+  bindModal(document.getElementById("menu-dialog"), [...document.querySelectorAll("[data-open-menu]")], [document.getElementById("close-menu")]);
+  bindModal(orderDialog, [document.getElementById("show-order")], [document.getElementById("close-order"), document.getElementById("continue-order")]);
 
   const fullMenuImage = document.getElementById("full-menu-image");
   const menuImageError = document.getElementById("menu-image-error");
@@ -348,5 +520,7 @@ const MENU = {
     link.href = `https://www.instagram.com/${encodeURIComponent(handle)}/`;
   });
 
+  restoreOrder();
   renderMenu();
+  renderOrder();
 })();
