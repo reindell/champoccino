@@ -109,7 +109,7 @@ GitHub Pages redeploys after the push.
 - Replace any SVG in `assets/` with your final logo or mascot artwork, keeping its filename. If using PNG instead, update the corresponding `src` in `index.html` or the mascot path in `MENU` in `script.js`. Keep descriptive alt text. Image frames retain their space if an asset cannot load.
 - Replace `assets/menu.jpg` with your original complete menu export. Keep the filename so the modal, direct image link, and download continue to work.
 - Replace `assets/favicon.svg` to change the browser icon.
-- In `index.html`, find the **TODO** comments next to the two Facebook links and replace `href="#"` with the actual Champoccino and Whisk'N Facebook page URLs.
+- The shared Facebook and TikTok buttons are in the footer of `index.html`: [Facebook](https://www.facebook.com/profile.php?id=61591409438206) and [TikTok @champoccino.x.whi](https://www.tiktok.com/@champoccino.x.whi). Update their `href` values if the account links change.
 - Instagram URLs are built in `script.js` from the `data-instagram` handles in `index.html`: `Champo_ccino` and `Whisk_nc`. Update those attributes if the handles change.
 - Social links use `target="_blank"` and `rel="noopener noreferrer"`.
 - The title, description, Open Graph tags, and favicon are in the `<head>` of `index.html`. The `og:url` and `og:image` metadata use the production URL `https://reindell.github.io/champoccino/` so social preview crawlers can find the site and image. Update those two metadata values if the account or repository name changes. Page links, scripts, styles, and image sources stay relative.

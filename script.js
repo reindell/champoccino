@@ -348,14 +348,5 @@ const MENU = {
     link.href = `https://www.instagram.com/${encodeURIComponent(handle)}/`;
   });
 
-  document.querySelectorAll("[data-facebook-placeholder]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      if (link.getAttribute("href") && link.getAttribute("href") !== "#") return;
-      event.preventDefault();
-      const socialStatus = document.getElementById("social-status");
-      if (socialStatus) socialStatus.textContent = `${link.dataset.brand || "Our"} Facebook link is coming soon. Find us on Instagram in the meantime.`;
-    });
-  });
-
   renderMenu();
 })();

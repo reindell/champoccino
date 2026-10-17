@@ -139,7 +139,11 @@ h2 { font-size: clamp(38px, 8vw, 52px); line-height: 1.25; margin-top: 7px; }
 .no-script { padding: 30px 0; }
 .site-footer { background: var(--coffee); color: var(--white); padding-top: 37px; }
 .footer-inner { display: grid; grid-template-columns: 1fr; gap: 29px; }
-.footer-message > p:last-child { font-size: 10px; margin-top: 10px; color: var(--cream); }
+.footer-message > p + p { font-size: 10px; margin-top: 10px; color: var(--cream); }
+.shared-social-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.shared-social-links a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--cream); border-radius: 5px; font-size: 11px; text-decoration: none; }
+.shared-social-links a:hover { background: var(--cream); color: var(--coffee); }
+.shared-social-links .social-icon { border-color: currentColor; }
 .social-group h2 { font: 600 13px var(--body); margin: 0 0 8px; }
 .social-group h2 small { font-size: 8px; font-weight: 400; }
 .social-group a { display: flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; font-size: 11px; }
@@ -147,7 +151,6 @@ h2 { font-size: clamp(38px, 8vw, 52px); line-height: 1.25; margin-top: 7px; }
 .social-group a:hover { color: var(--cream); text-decoration: underline; }
 .social-icon { width: 18px; height: 18px; display: inline-grid; place-items: center; border: 1px solid var(--cream); border-radius: 50%; font: 700 12px Arial, sans-serif; }
 .instagram-icon { border-radius: 5px; font-size: 18px; font-weight: 400; }
-.social-status { font-size: 11px; color: var(--cream); min-height: 19px; margin-block: 12px; }
 .footer-bottom { border-top: 1px solid #ffffff2e; margin-top: 18px; padding-block: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 8px; color: var(--cream); }
 .footer-bottom > p:last-child { letter-spacing: 1px; }
 .footer-bottom span { margin-left: 5px; color: var(--yellow); }
