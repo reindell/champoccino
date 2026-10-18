@@ -90,18 +90,24 @@ const MENU = {
   const temperatureControls = document.getElementById("temperature-controls");
   const temperatureNote = document.getElementById("temperature-note");
   const orderDialog = document.getElementById("order-dialog");
+  const thankYouDialog = document.getElementById("thank-you-dialog");
   const orderItems = document.getElementById("order-items");
   const orderBar = document.getElementById("order-bar");
+  const customerNameInput = document.getElementById("customer-name");
   const order = new Map();
   const orderStorageKey = "champoccino-order-v1";
   const maxQuantity = 99;
   const currency = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
-  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
   let orderProgress = null;
+  let orderJustReceived = false;
+  let customerName = "";
+  let receivedCustomerName = "";
   let staffConfirmationOpen = false;
   let receiptConfirmationOpen = false;
-  let animationPaused = false;
   let orderStorageAvailable = true;
+  let cheerTimer = null;
+  let cheerIndex = 0;
+  const cheerMessages = ["You're a whole latte awesome!", "A little happy, just for you.", "Sip, smile, repeat.", "Your coffee crew says hi!"];
   let selectedCategory = "all";
   let selectedTemperature = "iced";
 
@@ -264,6 +270,11 @@ const MENU = {
     }));
   }
 
+  function normalizeCustomerName(value) {
+    if (typeof value !== "string") return "";
+    return [...value.normalize("NFC").replace(/\s+/gu, " ").trim()].slice(0, 60).join("");
+  }
+
   function validOrderProgress(progress) {
     return progress && ["preparing", "received"].includes(progress.phase)
       && Number.isSafeInteger(progress.confirmedAt) && progress.confirmedAt > 0
@@ -279,6 +290,7 @@ const MENU = {
   function restoreOrder() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(orderStorageKey));
+      if (saved?.version === 2) customerName = normalizeCustomerName(saved.customerName);
       // Accept selections saved by the original menu as well as the full order lifecycle.
       const items = Array.isArray(saved) ? saved : saved?.version === 2 && Array.isArray(saved.items) ? saved.items : [];
       for (const line of items) {
@@ -293,10 +305,19 @@ const MENU = {
         order.set(key, clean);
       }
       if (saved?.version === 2 && validOrderProgress(saved.progress)) {
-        const { phase, confirmedAt, receivedAt, lines } = saved.progress;
+        const { phase, confirmedAt, lines } = saved.progress;
+        customerName = normalizeCustomerName(saved.progress.customerName ?? customerName);
+        // Completed orders from the previous flow also return to an empty menu.
+        if (phase === "received") {
+          receivedCustomerName = customerName;
+          customerName = "";
+          order.clear();
+          orderJustReceived = true;
+          saveOrder();
+          return;
+        }
         orderProgress = {
-          phase, confirmedAt,
-          ...(phase === "received" ? { receivedAt } : {}),
+          phase, confirmedAt, customerName,
           lines: lines.map(({ name, detail, price, quantity }) => ({ name, detail, price, quantity }))
         };
       }
@@ -308,7 +329,7 @@ const MENU = {
 
   function saveOrder() {
     try {
-      if (order.size || orderProgress) sessionStorage.setItem(orderStorageKey, JSON.stringify({ version: 2, items: [...order.values()], progress: orderProgress }));
+      if (order.size || orderProgress) sessionStorage.setItem(orderStorageKey, JSON.stringify({ version: 2, customerName: normalizeCustomerName(customerName), items: [...order.values()], progress: orderProgress }));
       else sessionStorage.removeItem(orderStorageKey);
       orderStorageAvailable = true;
     } catch {
@@ -364,7 +385,7 @@ const MENU = {
     orderItems?.replaceChildren(fragment);
     if (orderBar) orderBar.hidden = count === 0;
     document.body.classList.toggle("has-order", count > 0);
-    const phaseLabel = orderProgress?.phase === "preparing" ? "Preparing · " : orderProgress?.phase === "received" ? "Received · " : "";
+    const phaseLabel = orderProgress ? "Preparing · " : "";
     document.getElementById("order-count").textContent = `${phaseLabel}${count} ${count === 1 ? "item" : "items"}`;
     document.getElementById("order-bar-total").textContent = currency.format(total);
     document.getElementById("order-total").textContent = currency.format(total);
@@ -379,38 +400,39 @@ const MENU = {
   function renderOrderStage(count) {
     const phase = orderProgress?.phase || "draft";
     const preparing = phase === "preparing";
-    const received = phase === "received";
+    if (!preparing) stopWaitingCheer();
     const progressPanel = document.getElementById("order-progress");
     orderDialog.dataset.orderPhase = phase;
-    progressPanel.hidden = phase === "draft";
-    progressPanel.classList.toggle("animation-paused", animationPaused);
+    progressPanel.hidden = !preparing;
     document.getElementById("waiting-visual").hidden = !preparing;
-    document.getElementById("received-visual").hidden = !received;
-    document.getElementById("order-stage-label").textContent = received ? "ORDER RECEIVED" : "CONFIRMED AT THE COUNTER";
-    document.getElementById("order-stage-title").textContent = received ? "Enjoy every sip & bite." : "We're preparing your order.";
-    document.getElementById("order-stage-message").textContent = received
-      ? "Thanks for visiting Champoccino & Whisk'N. See you again soon!"
-      : "Please wait for our staff to call your order. Confirm below once you've received everything.";
+    document.getElementById("order-stage-label").textContent = "CONFIRMED AT THE COUNTER";
+    document.getElementById("order-stage-title").textContent = "We're preparing your order.";
+    const name = orderProgress?.customerName || "";
+    document.getElementById("order-stage-message").textContent = `${name ? `${name}, please` : "Please"} wait for our staff to call your order. Confirm below once you've received everything.`;
+    document.getElementById("customer-name-field").hidden = count === 0;
+    const displayedName = preparing ? name : customerName;
+    if (customerNameInput.value !== displayedName) customerNameInput.value = displayedName;
+    customerNameInput.readOnly = preparing;
+    document.getElementById("customer-name-help").textContent = preparing ? "Name confirmed with your order." : "Your first name or nickname.";
     document.getElementById("order-description").textContent = phase === "draft"
       ? "Your favorites, ready to show our staff."
-      : received ? "All received. Thanks for spending a little time with us." : "Keep this screen until you receive your order.";
-    const pauseButton = document.getElementById("pause-order-animation");
-    pauseButton.hidden = !preparing || motionPreference.matches;
-    pauseButton.textContent = animationPaused ? "Resume animation" : "Pause animation";
-    pauseButton.setAttribute("aria-pressed", String(animationPaused));
+      : "Keep this screen until you receive your order.";
     document.getElementById("received-order").hidden = !preparing || receiptConfirmationOpen;
     document.getElementById("receipt-confirmation").hidden = !preparing || !receiptConfirmationOpen;
     document.getElementById("staff-payment").hidden = count === 0 || phase !== "draft";
     document.getElementById("staff-confirm-payment").hidden = staffConfirmationOpen;
     document.getElementById("payment-confirmation").hidden = !staffConfirmationOpen;
-    document.getElementById("new-order").hidden = !received;
     document.getElementById("order-storage-note").hidden = orderStorageAvailable || count === 0;
     const arrow = element("span", "", "→");
     arrow.setAttribute("aria-hidden", "true");
     document.getElementById("show-order").replaceChildren(document.createTextNode(orderProgress ? "View my order " : "Show my order "), arrow);
     const helper = document.getElementById("order-help");
     if (phase === "draft") helper.replaceChildren("Tap ", element("strong", "", "+ Add"), " to choose your favorites. Show your order and pay at the counter.");
-    else helper.textContent = received ? "Order received! Open your order to start a new one." : "Your order is being prepared. Tap View my order to see your confirmed items.";
+    else helper.textContent = "Your order is being prepared. Tap View my order to see your confirmed items.";
+    const pageStatus = document.getElementById("order-status");
+    pageStatus.classList.toggle("sr-only", !orderJustReceived);
+    pageStatus.classList.toggle("order-complete-message", orderJustReceived);
+    if (orderJustReceived) pageStatus.textContent = `Thank you${receivedCustomerName ? `, ${receivedCustomerName}` : ""}! Enjoy every sip & bite. Your order has been cleared, ready for your next visit.`;
   }
 
   function focusOrderStage() {
@@ -419,9 +441,43 @@ const MENU = {
     document.getElementById("order-progress").scrollIntoView({ behavior: "instant", block: "start" });
   }
 
+  function stopWaitingCheer() {
+    clearTimeout(cheerTimer);
+    cheerTimer = null;
+    document.getElementById("waiting-visual").classList.remove("is-cheering");
+  }
+
+  document.getElementById("cheer-order").addEventListener("click", () => {
+    if (orderProgress?.phase !== "preparing" || !orderDialog.open) return;
+    stopWaitingCheer();
+    const visual = document.getElementById("waiting-visual");
+    // Restart this small, user-triggered dance even after a rapid second tap.
+    void visual.offsetWidth;
+    visual.classList.add("is-cheering");
+    document.getElementById("waiting-cheer-message").textContent = cheerMessages[cheerIndex++ % cheerMessages.length];
+    cheerTimer = setTimeout(stopWaitingCheer, 3000);
+  });
+
+  customerNameInput.addEventListener("input", () => {
+    if (orderProgress) return;
+    customerName = customerNameInput.value;
+    staffConfirmationOpen = false;
+    document.getElementById("staff-confirm-payment").hidden = false;
+    document.getElementById("payment-confirmation").hidden = true;
+    saveOrder();
+  });
+  customerNameInput.addEventListener("blur", () => {
+    if (orderProgress) return;
+    customerName = normalizeCustomerName(customerNameInput.value);
+    customerNameInput.value = customerName;
+    saveOrder();
+  });
+
   document.getElementById("staff-confirm-payment").addEventListener("click", () => {
     if (!order.size || orderProgress) return;
+    customerName = normalizeCustomerName(customerNameInput.value);
     staffConfirmationOpen = true;
+    saveOrder();
     renderOrder();
     document.getElementById("cancel-payment").focus();
   });
@@ -433,7 +489,7 @@ const MENU = {
   document.getElementById("confirm-payment").addEventListener("click", () => {
     if (!staffConfirmationOpen || !order.size || orderProgress) return;
     orderProgress = {
-      phase: "preparing", confirmedAt: Date.now(),
+      phase: "preparing", confirmedAt: Date.now(), customerName: normalizeCustomerName(customerName),
       lines: draftOrderLines().map(({ name, detail, price, quantity }) => ({ name, detail, price, quantity }))
     };
     staffConfirmationOpen = false;
@@ -456,36 +512,36 @@ const MENU = {
   });
   document.getElementById("confirm-received").addEventListener("click", () => {
     if (!receiptConfirmationOpen || orderProgress?.phase !== "preparing") return;
-    orderProgress = { ...orderProgress, phase: "received", receivedAt: Math.max(Date.now(), orderProgress.confirmedAt) };
-    receiptConfirmationOpen = false;
-    saveOrder();
-    renderOrder();
-    announceOrder("Order received. Enjoy every sip and bite!");
-    focusOrderStage();
-  });
-  document.getElementById("pause-order-animation").addEventListener("click", () => {
-    if (orderProgress?.phase !== "preparing") return;
-    animationPaused = !animationPaused;
-    renderOrder();
-  });
-  motionPreference.addEventListener("change", () => renderOrder());
-  document.getElementById("new-order").addEventListener("click", () => {
-    if (orderProgress?.phase !== "received") return;
+    receivedCustomerName = orderProgress.customerName || "";
+    customerName = "";
     orderProgress = null;
     order.clear();
-    animationPaused = false;
+    orderJustReceived = true;
+    staffConfirmationOpen = false;
+    receiptConfirmationOpen = false;
+    cheerIndex = 0;
+    document.getElementById("waiting-cheer-message").textContent = "Good things are brewing.";
     saveOrder();
     renderOrder();
     renderMenu();
+    // Open the celebration after the shared close handler finishes its focus handoff.
+    orderDialog.addEventListener("close", showThankYou, { once: true });
     orderDialog.close();
-    moveTo(document.getElementById("menu"));
-    announceOrder("Start a new order. Choose a drink or a bite from the menu.");
   });
   orderDialog.addEventListener("close", () => {
+    stopWaitingCheer();
     staffConfirmationOpen = false;
     receiptConfirmationOpen = false;
     renderOrder();
   });
+
+  function showThankYou() {
+    const name = document.getElementById("thank-you-customer");
+    name.textContent = receivedCustomerName ? `${receivedCustomerName}!` : "";
+    name.hidden = !receivedCustomerName;
+    document.getElementById("thank-you-punctuation").textContent = receivedCustomerName ? "," : "!";
+    openThankYou(document.getElementById("order-status"));
+  }
 
   menuContent?.addEventListener("click", (event) => {
     const button = event.target.closest("button.add-to-order");
@@ -504,6 +560,8 @@ const MENU = {
     }
     if (existing) existing.quantity += 1;
     else order.set(key, line);
+    orderJustReceived = false;
+    receivedCustomerName = "";
     saveOrder();
     renderOrder();
     announceOrder(`Added ${item.name}, ${orderDetail(line)}. Your order has ${document.getElementById("order-count").textContent}.`);
@@ -599,15 +657,15 @@ const MENU = {
       return event.clientX < bounds.left || event.clientX > bounds.right
         || event.clientY < bounds.top || event.clientY > bounds.bottom;
     }
-    openers.forEach((button) => {
-      button.addEventListener("click", () => {
-        if (dialog.open) return;
-        dialogOpener = button;
-        dialog.showModal();
-        document.documentElement.classList.add("dialog-open");
-        dialog.querySelector("[autofocus]")?.focus({ preventScroll: true });
-      });
-    });
+    function openModal(opener) {
+      if (dialog.open) return;
+      dialogOpener = opener;
+      dialog.showModal();
+      dialog.scrollTop = 0;
+      document.documentElement.classList.add("dialog-open");
+      dialog.querySelector("[autofocus]")?.focus({ preventScroll: true });
+    }
+    openers.forEach((button) => button.addEventListener("click", () => openModal(button)));
     closeButtons.forEach((button) => button.addEventListener("click", () => dialog.close()));
     dialog.addEventListener("pointerdown", (event) => {
       pointerStartedOutside = outsideDialog(event);
@@ -640,10 +698,17 @@ const MENU = {
         first.focus();
       }
     });
+    return openModal;
   }
 
   bindModal(document.getElementById("menu-dialog"), [...document.querySelectorAll("[data-open-menu]")], [document.getElementById("close-menu")]);
   bindModal(orderDialog, [document.getElementById("show-order")], [document.getElementById("close-order"), document.getElementById("continue-order")]);
+  const openThankYou = bindModal(thankYouDialog, [], [document.getElementById("close-thank-you"), document.getElementById("thank-you-back")]);
+  thankYouDialog.addEventListener("close", () => {
+    document.getElementById("thank-you-customer").textContent = "";
+    document.getElementById("thank-you-customer").hidden = true;
+    moveTo(document.getElementById("order-status"));
+  });
 
   const fullMenuImage = document.getElementById("full-menu-image");
   const menuImageError = document.getElementById("menu-image-error");

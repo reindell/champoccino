@@ -90,7 +90,7 @@
           </div>
           <p class="sr-only" id="menu-status" role="status" aria-live="polite" aria-atomic="true"></p>
           <p class="order-help" id="order-help">Tap <strong>+ Add</strong> to choose your favorites. Show your order and pay at the counter.</p>
-          <p class="sr-only" id="order-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          <p class="sr-only" id="order-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></p>
           <div id="menu-content"></div>
           <noscript><p class="no-script">Enable JavaScript to filter the menu, or <a href="assets/menu.jpg">view the full menu image</a>.</p></noscript>
           <div class="full-menu-callout"><span class="callout-star" aria-hidden="true">✦</span><div><h3>More of a big-picture person?</h3><p>See all the good stuff on one menu.</p></div><button type="button" class="button button-outline" data-open-menu>View Full Menu Image <span aria-hidden="true">↗</span></button></div>
@@ -126,20 +126,30 @@
     <dialog id="order-dialog" class="menu-dialog order-dialog" aria-labelledby="order-heading" aria-describedby="order-description">
       <div class="dialog-header"><div><p class="eyebrow">CHAMPOCCINO &amp; WHISK’N</p><h2 id="order-heading">Your order.</h2></div><button type="button" id="close-order" class="close-menu" aria-label="Close your order" autofocus><span aria-hidden="true">×</span></button></div>
       <p id="order-description" class="order-description">Your favorites, ready to show our staff.</p>
+      <div id="customer-name-field" class="customer-name-field">
+        <label for="customer-name">Name for your order <span>(optional)</span></label>
+        <input type="text" id="customer-name" name="customerName" maxlength="60" autocomplete="given-name" autocapitalize="words" spellcheck="false" placeholder="e.g. Alex" aria-describedby="customer-name-help">
+        <p id="customer-name-help">Your first name or nickname.</p>
+      </div>
       <div id="counter-instructions" class="counter-instructions">
         <strong>Please proceed to the counter and pay as you order.</strong>
         <p>Show this order to our staff to place your order.</p>
       </div>
       <section id="order-progress" class="order-progress" aria-labelledby="order-stage-title" hidden>
-        <div id="waiting-visual" class="waiting-visual" aria-hidden="true">
-          <div class="waiting-steam"><span></span><span></span><span></span></div>
-          <img src="assets/mascot-coffee.svg" alt="" width="140" height="150">
+        <div id="waiting-visual" class="waiting-visual">
+          <div class="waiting-sun" aria-hidden="true"></div>
+          <p id="waiting-cheer-message" class="waiting-cheer-message" role="status" aria-live="polite" aria-atomic="true">Good things are brewing.</p>
+          <div class="waiting-steam" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="waiting-sparkle sparkle-left" aria-hidden="true">✦</span><span class="waiting-sparkle sparkle-right" aria-hidden="true">✦</span>
+          <div class="waiting-floor" aria-hidden="true"></div>
+          <img class="waiting-coffee" src="assets/mascot-coffee.svg" alt="" width="140" height="150">
+          <img class="waiting-matcha" src="assets/mascot-matcha.svg" alt="" width="120" height="128">
+          <span class="cheer-heart heart-one" aria-hidden="true">♥</span><span class="cheer-heart heart-two" aria-hidden="true">♥</span><span class="cheer-heart heart-three" aria-hidden="true">♥</span><span class="cheer-heart heart-four" aria-hidden="true">♥</span>
+          <button type="button" id="cheer-order" class="waiting-play-button">Cheer them on <span aria-hidden="true">♡</span></button>
         </div>
-        <div id="received-visual" class="received-visual" aria-hidden="true" hidden><svg viewBox="0 0 64 64" width="64" height="64" fill="none"><circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2"/><path d="m19 32 9 9 17-18" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <p id="order-stage-label" class="eyebrow"></p>
         <h3 id="order-stage-title" tabindex="-1"></h3>
         <p id="order-stage-message"></p>
-        <button type="button" id="pause-order-animation" class="motion-control" aria-pressed="false">Pause animation</button>
         <button type="button" id="received-order" class="button button-primary">I've received my order</button>
         <div id="receipt-confirmation" class="order-confirmation" role="group" aria-labelledby="receipt-confirm-heading" hidden>
           <h4 id="receipt-confirm-heading">Have you received everything?</h4>
@@ -161,7 +171,25 @@
       </div>
       <p id="order-storage-note" class="order-storage-note" hidden>Keep this page open. This browser cannot save your order if the page is refreshed.</p>
       <p class="sr-only" id="order-dialog-status" role="status" aria-live="polite" aria-atomic="true"></p>
-      <div class="order-dialog-footer"><button type="button" id="new-order" class="button button-primary" hidden>Start a new order</button><button type="button" id="continue-order" class="button button-outline">Back to menu</button></div>
+      <div class="order-dialog-footer"><button type="button" id="continue-order" class="button button-outline">Back to menu</button></div>
+    </dialog>
+
+    <dialog id="thank-you-dialog" class="thank-you-dialog" aria-labelledby="thank-you-heading thank-you-customer" aria-describedby="thank-you-description">
+      <div class="thank-you-confetti" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <button type="button" id="close-thank-you" class="close-menu thank-you-close" aria-label="Close thank-you screen"><span aria-hidden="true">×</span></button>
+      <div class="thank-you-content">
+        <p class="eyebrow">CHAMPOCCINO &amp; WHISK’N</p>
+        <div class="thank-you-mascots" aria-hidden="true">
+          <div class="thank-you-halo"></div>
+          <span class="thank-you-star thank-you-star-left">✦</span><span class="thank-you-star thank-you-star-right">✦</span>
+          <img class="thank-you-coffee" src="assets/mascot-coffee.svg" alt="" width="160" height="171">
+          <img class="thank-you-matcha" src="assets/mascot-matcha.svg" alt="" width="132" height="141">
+        </div>
+        <h2 id="thank-you-heading" tabindex="-1" autofocus><span>Thank you</span> <span>for ordering<span id="thank-you-punctuation">!</span></span></h2>
+        <p id="thank-you-customer" class="thank-you-customer" hidden></p>
+        <p id="thank-you-description">Enjoy every sip &amp; bite.<br>We're happy you spent a little of your day with us.</p>
+        <button type="button" id="thank-you-back" class="button button-primary">Back to menu <span aria-hidden="true">→</span></button>
+      </div>
     </dialog>
 
     <dialog id="menu-dialog" class="menu-dialog" aria-labelledby="dialog-heading" aria-describedby="dialog-description">
