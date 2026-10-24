@@ -127,6 +127,7 @@ h2 { font-size: clamp(38px, 8vw, 52px); line-height: 1.25; margin-top: 7px; }
 .instagram-icon { width: 20px; height: 20px; border: 0; border-radius: 0; }
 .footer-bottom { border-top: 1px solid #ffffff2e; margin-top: 18px; padding-block: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 8px; color: var(--cream); }
 .footer-bottom > p:last-child { letter-spacing: 1px; }
+.site-credit { padding-bottom: 22px; color: var(--cream); text-align: center; font-size: 10px; }
 .back-to-top { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 20; display: grid; place-items: center; width: 48px; height: 48px; background: var(--yellow); border: 1.5px solid var(--coffee); color: var(--coffee); border-radius: 50%; font-size: 24px; box-shadow: 0 3px 0 var(--coffee); }
 .back-to-top:hover { background: var(--cream); }
 .menu-dialog { width: min(1120px, calc(100% - 24px)); max-height: calc(100dvh - 32px); padding: 22px; border: 1px solid var(--coffee); border-radius: 12px; background: var(--white); color: var(--coffee); overflow-y: auto; box-shadow: 0 20px 80px #0004; }
