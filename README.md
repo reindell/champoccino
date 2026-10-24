@@ -15,6 +15,15 @@ A mobile-first digital menu for **Champoccino** and its sister brand, **Whisk'N 
 
 The QR code opens `https://reindell.github.io/champoccino/` directly. Keep the white border around it when printing. Menu changes at the same URL do not require a new QR code; regenerate it if the site address changes.
 
+## Designed menu sticker
+
+- [Print the sticker PDF](assets/champoccino-sticker.pdf): finished size **80 × 100 mm**.
+- [Print four stickers on A4](assets/champoccino-sticker-a4.pdf), with light cut guides.
+- [Download the high-resolution PNG](assets/champoccino-sticker.png) for sharing or placing in a print layout.
+- [Download the vector SVG](assets/champoccino-sticker.svg) for a print shop or further editing.
+
+Print the PDF at **Actual size / 100%** on sticker paper. Keep the QR code's white border intact. The sticker uses the same live menu URL as the standalone QR code above. Its simple layout omits stars and cartoon characters.
+
 ## Files
 
 ```text
@@ -32,9 +41,13 @@ assets/
   menu.jpg
   champoccino-qr.png
   champoccino-qr.svg
+  champoccino-sticker.pdf
+  champoccino-sticker-a4.pdf
+  champoccino-sticker.png
+  champoccino-sticker.svg
 ```
 
-The lightweight SVG logo and cartoon mascots are editable starter artwork. The included **menu.jpg is a typeset recreation of the supplied menu content and visual reference**, containing all 31 items and their prices; it is not the original uploaded artwork. Replace it with your original high-resolution export whenever available, keeping the same filename.
+The website uses a text wordmark and a plain coffee-cup favicon. Legacy logo and mascot SVG files remain available in assets but are not displayed. The included **menu.jpg is a typeset recreation of the supplied menu content and visual reference**, containing all 31 items and their prices; it is not the original uploaded artwork. Replace it with your original high-resolution export whenever available, keeping the same filename.
 
 ## Preview locally
 
@@ -53,14 +66,8 @@ Then visit `http://localhost:8000/`. Google Fonts loads Anton and Poppins when o
 - **View Menu** scrolls to the menu and moves keyboard focus to it. Reduced-motion preferences are respected.
 - Category buttons filter the menu immediately. The default selection is **All**, with **Iced** drinks.
 - **Hot / Iced** controls Coffee and Matcha: Hot shows 8oz; Iced shows 12oz and 16oz. Iced-only items disappear when Hot is selected. In All, the other categories stay visible and retain their normal sizes.
-- A yellow star marks a featured item. Prices use Philippine pesos (₱).
-- **+ Add** adds the chosen drink size, snack, meal, or add-on to the customer's order. Fries and Nachos include a flavor choice.
-- **Show my order** opens a summary with quantities, sizes, flavors, and the total, plus a message to proceed to the counter and pay as you order. Customers show this screen to staff to place their order. Quantity controls and Remove let them edit the list.
-- Selections stay intact when changing categories or temperature, and survive a refresh in the same tab when browser session storage is available. This is a customer-held list; orders and payments are handled at the counter.
-- After collecting payment, the owner or barista taps **For staff: confirm payment** on the customer's phone and confirms the displayed total. The order then locks and shows an animated waiting screen. The animation respects reduced-motion preferences.
-- When everything arrives, the customer taps **I've received my order** and confirms receipt. The order automatically clears and a full-screen **Thank you for ordering!** celebration appears with dancing mascots and confetti. **Back to menu**, the close button, or Escape returns to the menu, ready for a new order.
-- Customers can add a first name or nickname in **Name for your order (optional)**. It stays with their order through a refresh in the same tab. After receipt, the celebration says **Thank you for ordering, Alex!** and clears the name with the order. Customers who skip the name field still receive the thank-you screen.
-- Confirmed items and prices are preserved while waiting, including after a refresh in the same tab. Confirmation is recorded only on that phone; it does not charge a payment, authenticate staff, or update a separate staff device.
+- All 31 items display their sizes and prices in Philippine pesos (₱). Snack flavors appear as descriptions.
+- The customer menu is for viewing only. It has no ordering controls, featured stars, or cartoon characters.
 - **View Full Menu Image** opens the full image in a modal. Close it with the close button, Escape, or the backdrop. Keyboard focus stays inside the modal and returns to the opening button when closed. The Download link saves `assets/menu.jpg`.
 - The floating **Back to top** button appears after scrolling.
 
@@ -106,7 +113,7 @@ Edit the single **`MENU` object near the top of `script.js`**. Each item contain
 { name: "Americano", prices: { hot8: 109, iced12: 119, iced16: 139 } }
 ```
 
-Change the appropriate number and save. `hot8` means Hot 8oz, `iced12` means Iced 12oz, and `iced16` means Iced 16oz. Snacks, meals, and add-ons use `single`. Omit a size if it is unavailable; do not set it to zero. Set `featured: true` to display a star.
+Change the appropriate number and save. `hot8` means Hot 8oz, `iced12` means Iced 12oz, and `iced16` means Iced 16oz. Snacks, meals, and add-ons use `single`. Omit a size if it is unavailable; do not set it to zero.
 
 The cards render from this object, so there is no menu-card HTML to edit. **The downloadable `assets/menu.jpg` is a separate static image: update or replace it too when prices or items change.**
 
@@ -122,7 +129,7 @@ GitHub Pages redeploys after the push.
 
 ## Replace artwork and social links
 
-- Replace any SVG in `assets/` with your final logo or mascot artwork, keeping its filename. If using PNG instead, update the corresponding `src` in `index.html` or the mascot path in `MENU` in `script.js`. Keep descriptive alt text. Image frames retain their space if an asset cannot load.
+- The wordmarks are text in `index.html`. Keep the customer menu and printable QR sticker free of decorative stars and cartoon characters.
 - Replace `assets/menu.jpg` with your original complete menu export. Keep the filename so the modal, direct image link, and download continue to work.
 - Replace `assets/favicon.svg` to change the browser icon.
 - The shared Facebook and TikTok buttons are in the footer of `index.html`: [Facebook](https://www.facebook.com/profile.php?id=61591409438206) and [TikTok @champoccino.x.whi](https://www.tiktok.com/@champoccino.x.whi). Update their `href` values if the account links change.
