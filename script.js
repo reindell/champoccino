@@ -4,6 +4,8 @@ const MENU = {
   coffee: {
     label: "Coffee",
     description: "Your daily pick-me-up, made just right.",
+    mascot: "assets/mascot-coffee.svg",
+    mascotAlt: "A cheerful cartoon coffee cup waving hello",
     items: [
       { name: "Americano", prices: { hot8: 109, iced12: 119, iced16: 139 } },
       { name: "Cafe Latte", prices: { hot8: 119, iced12: 129, iced16: 149 } },
@@ -20,6 +22,8 @@ const MENU = {
   matcha: {
     label: "Matcha",
     description: "A little green, a whole lot of goodness.",
+    mascot: "assets/mascot-matcha.svg",
+    mascotAlt: "A friendly cartoon matcha whisk holding a cup",
     items: [
       { name: "Matcha Latte", prices: { hot8: 129, iced12: 139, iced16: 159 } },
       { name: "Honey Matcha", prices: { iced12: 139, iced16: 159 } },
@@ -32,6 +36,8 @@ const MENU = {
   "non-coffee": {
     label: "Non-Coffee",
     description: "Sweet sips for your kind of day.",
+    mascot: "assets/mascot-iced.svg",
+    mascotAlt: "A smiling cartoon iced drink with whipped cream",
     items: [
       { name: "Chocolate", prices: { iced12: 119, iced16: 139 } },
       { name: "Strawberry Milk", prices: { iced12: 119, iced16: 139 } },
@@ -42,6 +48,8 @@ const MENU = {
   fizzies: {
     label: "Fizzies",
     description: "Bright, bubbly, and full of good vibes.",
+    mascot: "assets/mascot-iced.svg",
+    mascotAlt: "A happy cartoon iced drink",
     items: [
       { name: "Strawberry Crush", prices: { iced12: 99, iced16: 119 } },
       { name: "Apple Burst", prices: { iced12: 99, iced16: 119 } },
@@ -51,6 +59,8 @@ const MENU = {
   snacks: {
     label: "Snacks & Meals",
     description: "A good bite makes everything better.",
+    mascot: "assets/mascot-fries.svg",
+    mascotAlt: "A playful cartoon carton of fries waving hello",
     items: [
       { name: "Fries", description: "Cheese, Sour & Cream, or BBQ", prices: { single: 99 } },
       { name: "Nachos", description: "Cheese or BBQ", prices: { single: 99 } },
@@ -141,6 +151,18 @@ const MENU = {
     title.id = headingId;
     copy.append(title, element("p", "category-description", data.description));
     header.append(copy);
+    if (data.mascot) {
+      const frame = element("div", "mascot-frame category-mascot");
+      const mascot = element("img", "category-mascot-image");
+      mascot.src = data.mascot;
+      mascot.alt = data.mascotAlt;
+      mascot.loading = "lazy";
+      mascot.decoding = "async";
+      mascot.width = 140;
+      mascot.height = 140;
+      frame.append(mascot);
+      header.append(frame);
+    }
     const grid = element("div", "menu-grid");
     for (const { item, sizes, index } of visibleItems) grid.append(makeCard(item, category, sizes, index));
     section.append(header, grid);
@@ -301,6 +323,21 @@ const MENU = {
     fullMenuImage.addEventListener("load", () => setMenuImageState(true));
     if (fullMenuImage.complete) setMenuImageState(fullMenuImage.naturalWidth > 0);
   }
+
+  // Keep the reserved illustration space tidy if an optional mascot is missing.
+  document.addEventListener("error", (event) => {
+    if (!(event.target instanceof HTMLImageElement)) return;
+    const frame = event.target.closest(".mascot-frame");
+    if (!frame) return;
+    frame.classList.add("image-missing");
+    event.target.hidden = true;
+  }, true);
+  document.querySelectorAll(".mascot-frame img").forEach((image) => {
+    if (image.complete && image.naturalWidth === 0) {
+      image.closest(".mascot-frame").classList.add("image-missing");
+      image.hidden = true;
+    }
+  });
 
   document.querySelectorAll("[data-instagram]").forEach((link) => {
     const handle = link.dataset.instagram.replace(/^@/, "");

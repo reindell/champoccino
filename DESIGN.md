@@ -31,7 +31,7 @@ components:
 
 ## Overview
 
-Customers scan the QR code to browse the Champoccino and Whisk'N menu on their phones. The current brief calls for simple menu viewing, with ordering controls, featured stars, and cartoon characters removed from the website and QR sticker. Keep the established coffee brown, cream, yellow accents, and typography. README.md and MENU in script.js establish English copy, Philippine peso prices, and a static site without a backend.
+Customers scan the QR code to browse the Champoccino and Whisk'N menu on their phones. Keep the website's original illustrated characters, decorative stars, hero artwork, and good-days strip while offering menu viewing without ordering controls. The printed QR sticker stays simple, without stars or characters. Keep the established coffee brown, cream, yellow accents, and typography. README.md and MENU in script.js establish English copy, Philippine peso prices, and a static site without a backend.
 
 ## Colors
 
@@ -43,7 +43,7 @@ Anton through `--display` carries headings; Poppins through `--body` carries bod
 
 ## Layout
 
-Use a compact single-column introduction so the menu follows quickly. Keep the one-, two-, and three-column menu grid at its 540px and 850px breakpoints and the 1160px page width. The category bar stays sticky and scrolls horizontally on narrow screens. The document owns vertical scrolling. The full-menu image dialog scrolls within the viewport.
+Keep the original illustrated hero: copy above the coffee and matcha characters on phones, with copy and artwork side by side on desktop. Retain the happy sticker, good-days strip, category mascots, and decorative callout. Keep the one-, two-, and three-column menu grid at its 540px and 850px breakpoints and the 1160px page width. The category bar stays sticky and scrolls horizontally on narrow screens. The document owns vertical scrolling. The full-menu image dialog scrolls within the viewport. Preserve the centered Reindell M. Almazan footer credit.
 
 ## Elevation & Depth
 
@@ -66,7 +66,7 @@ Reuse `.button`, `.button-primary`, `.button-outline`, `.menu-dialog`, `.dialog-
 
 ## Iconography
 
-Use simple functional icons for navigation, temperature, social links, and closing the image dialog. Omit decorative stars, featured badges, and cartoon mascots. The favicon uses a plain coffee cup. Printable QR stickers follow the same simple direction and preserve the QR code's white border and destination.
+Use the original cartoon coffee, matcha, iced-drink, and fries artwork in the website hero and category headers, alongside decorative brand stars. Functional icons support navigation, temperature, social links, and closing the image dialog. The favicon uses the original smiling coffee cup. Item-level featured badges remain omitted. The full-menu image and printable QR sticker stay free of stars; the QR sticker also omits characters and preserves the QR code's white border and destination.
 
 ## Motion
 

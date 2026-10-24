@@ -47,7 +47,7 @@ assets/
   champoccino-sticker.svg
 ```
 
-The website uses a text wordmark and a plain coffee-cup favicon. Legacy logo and mascot SVG files remain available in assets but are not displayed. The included **menu.jpg is a typeset recreation of the supplied menu content and visual reference**, containing all 31 items and their prices; it is not the original uploaded artwork. Replace it with your original high-resolution export whenever available, keeping the same filename.
+The website uses the original illustrated coffee and matcha hero, category mascots, decorative stars, and smiling coffee-cup favicon. The included **menu.jpg is a typeset recreation of the supplied menu content and visual reference**, containing all 31 items and their prices; it is not the original uploaded artwork. Replace it with your original high-resolution export whenever available, keeping the same filename.
 
 ## Preview locally
 
@@ -67,7 +67,7 @@ Then visit `http://localhost:8000/`. Google Fonts loads Anton and Poppins when o
 - Category buttons filter the menu immediately. The default selection is **All**, with **Iced** drinks.
 - **Hot / Iced** controls Coffee and Matcha: Hot shows 8oz; Iced shows 12oz and 16oz. Iced-only items disappear when Hot is selected. In All, the other categories stay visible and retain their normal sizes.
 - All 31 items display their sizes and prices in Philippine pesos (₱). Snack flavors appear as descriptions.
-- The customer menu is for viewing only. It has no ordering controls, featured stars, or cartoon characters.
+- The customer menu is for viewing only, with no ordering controls or featured-item badges. The website retains its original characters and decorative design; the printable QR sticker stays simple.
 - **View Full Menu Image** opens the full image in a modal. Close it with the close button, Escape, or the backdrop. Keyboard focus stays inside the modal and returns to the opening button when closed. The Download link saves `assets/menu.jpg`.
 - The floating **Back to top** button appears after scrolling.
 
@@ -129,7 +129,7 @@ GitHub Pages redeploys after the push.
 
 ## Replace artwork and social links
 
-- The wordmarks are text in `index.html`. Keep the customer menu and printable QR sticker free of decorative stars and cartoon characters.
+- The wordmarks and hero artwork are in `index.html`; category mascot paths are in `MENU` in `script.js`. Keep descriptive alt text when replacing illustrations. The printable QR sticker stays free of decorative stars and cartoon characters.
 - Replace `assets/menu.jpg` with your original complete menu export. Keep the filename so the modal, direct image link, and download continue to work.
 - Replace `assets/favicon.svg` to change the browser icon.
 - The shared Facebook and TikTok buttons are in the footer of `index.html`: [Facebook](https://www.facebook.com/profile.php?id=61591409438206) and [TikTok @champoccino.x.whi](https://www.tiktok.com/@champoccino.x.whi). Update their `href` values if the account links change.
